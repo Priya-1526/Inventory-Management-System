@@ -222,27 +222,33 @@ public class InventorySystem {
             System.out.println(RED + "❌ No matching product found!" + RESET);
     }
 
-    // View all products + total value
-    private static void viewAllProducts() {
-        if (inventory.isEmpty()) {
-            System.out.println(RED + "No products in inventory." + RESET);
-            return;
-        }
-
-        System.out.println(CYAN + "\n------ CURRENT INVENTORY ------" + RESET);
-        System.out.printf("%-5s %-20s %-10s %-10s %-10s%n", "ID", "Name", "Qty", "Price", "Total");
-        System.out.println("---------------------------------------------------------------");
-
-        double totalInventoryValue = 0;
-        for (Product p : inventory.values()) {
-            double total = p.quantity * p.price;
-            totalInventoryValue += total;
-            System.out.printf("%-5d %-20s %-10d %-10.2f %-10.2f%n", p.id, p.name, p.quantity, p.price, total);
-        }
-
-        System.out.println("---------------------------------------------------------------");
-        System.out.printf(BLUE + "Total Inventory Value: ₹%.2f%n" + RESET, totalInventoryValue);
+// View all products sorted by ID + total value
+private static void viewAllProducts() {
+    if (inventory.isEmpty()) {
+        System.out.println(RED + "No products in inventory." + RESET);
+        return;
     }
+
+    System.out.println(CYAN + "\n------ CURRENT INVENTORY (Sorted by ID) ------" + RESET);
+    System.out.printf("%-5s %-20s %-10s %-10s %-10s%n", "ID", "Name", "Qty", "Price", "Total");
+    System.out.println("---------------------------------------------------------------");
+
+    // Convert to list and sort by ID
+    List<Product> sortedList = new ArrayList<>(inventory.values());
+    sortedList.sort(Comparator.comparingInt(p -> p.id));
+
+    double totalInventoryValue = 0;
+    for (Product p : sortedList) {
+        double total = p.quantity * p.price;
+        totalInventoryValue += total;
+        System.out.printf("%-5d %-20s %-10d %-10.2f %-10.2f%n",
+                p.id, p.name, p.quantity, p.price, total);
+    }
+
+    System.out.println("---------------------------------------------------------------");
+    System.out.printf(BLUE + "Total Inventory Value: ₹%.2f%n" + RESET, totalInventoryValue);
+}
+
 
     // View low-stock products
     private static void lowStockReport() {
@@ -297,5 +303,6 @@ public class InventorySystem {
         return sc.nextDouble();
     }
 }
+
 
 
