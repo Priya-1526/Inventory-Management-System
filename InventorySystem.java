@@ -27,7 +27,7 @@ class Product implements Serializable {
 
 public class InventorySystem {
 
-    private static final String FILE_NAME = "inventory.dat";
+    private static final String FILE_NAME = "inventory.data";
     private static HashMap<Integer, Product> inventory = new HashMap<>();
     private static final Scanner sc = new Scanner(System.in);
 
@@ -221,3 +221,4 @@ public class InventorySystem {
         }
     }
 }
+
