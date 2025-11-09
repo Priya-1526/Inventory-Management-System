@@ -20,7 +20,7 @@ class Product implements Serializable {
     public String toString() {
         double totalValue = quantity * price;
         return String.format("ID: %-5d | Name: %-20s | Qty: %-5d | Price: %-7.2f | Total: %.2f",
-                             id, name, quantity, price, totalValue);
+                id, name, quantity, price, totalValue);
     }
 }
 
@@ -30,7 +30,7 @@ public class InventorySystem {
     private static HashMap<Integer, Product> inventory = new HashMap<>();
     private static final Scanner sc = new Scanner(System.in);
 
-    // ANSI Color codes for styling
+    // ANSI color codes
     private static final String RESET = "\u001B[0m";
     private static final String CYAN = "\u001B[36m";
     private static final String GREEN = "\u001B[32m";
@@ -49,11 +49,10 @@ public class InventorySystem {
             System.out.println(BLUE + "3." + RESET + " Delete Product");
             System.out.println(BLUE + "4." + RESET + " Increase Stock");
             System.out.println(BLUE + "5." + RESET + " Decrease Stock");
-            System.out.println(BLUE + "6." + RESET + " Search Product by ID");
-            System.out.println(BLUE + "7." + RESET + " Search Product by Name");
-            System.out.println(BLUE + "8." + RESET + " View All Products");
-            System.out.println(BLUE + "9." + RESET + " View Low-Stock Products (<5)");
-            System.out.println(BLUE + "10." + RESET + " Save & Exit");
+            System.out.println(BLUE + "6." + RESET + " Search Product (by ID or Name)");
+            System.out.println(BLUE + "7." + RESET + " View All Products");
+            System.out.println(BLUE + "8." + RESET + " View Low-Stock Products (<5)");
+            System.out.println(BLUE + "9." + RESET + " Save & Exit");
             System.out.print(YELLOW + "Enter your choice: " + RESET);
 
             if (!sc.hasNextInt()) {
@@ -70,13 +69,12 @@ public class InventorySystem {
                 case 3 -> deleteProduct();
                 case 4 -> increaseStock();
                 case 5 -> decreaseStock();
-                case 6 -> searchById();
-                case 7 -> searchByName();
-                case 8 -> viewAllProducts();
-                case 9 -> lowStockReport();
-                case 10 -> {
+                case 6 -> searchProduct(); // Combined search
+                case 7 -> viewAllProducts();
+                case 8 -> lowStockReport();
+                case 9 -> {
                     saveInventory();
-                    System.out.println(GREEN + "Data saved. Exiting..." + RESET);
+                    System.out.println(GREEN + "✅ Data saved. Exiting..." + RESET);
                     System.exit(0);
                 }
                 default -> System.out.println(RED + "Invalid choice!" + RESET);
@@ -88,8 +86,9 @@ public class InventorySystem {
     private static void addProduct() {
         System.out.print("Enter Product ID: ");
         int id = getIntInput();
+
         if (inventory.containsKey(id)) {
-            System.out.println(RED + "Product with this ID already exists!" + RESET);
+            System.out.println(RED + "❌ Product with this ID already exists!" + RESET);
             return;
         }
 
@@ -113,12 +112,13 @@ public class InventorySystem {
         int id = getIntInput();
 
         if (!inventory.containsKey(id)) {
-            System.out.println(RED + "Product not found!" + RESET);
+            System.out.println(RED + "❌ Product not found!" + RESET);
             return;
         }
 
         Product p = inventory.get(id);
         sc.nextLine();
+
         System.out.print("Enter new name (" + p.name + "): ");
         String name = sc.nextLine();
         if (!name.isEmpty()) p.name = name;
@@ -127,32 +127,35 @@ public class InventorySystem {
         double price = getDoubleInput();
         if (price >= 0) p.price = price;
 
-        System.out.println(GREEN + "✅ Product updated!" + RESET);
+        System.out.println(GREEN + "✅ Product updated successfully!" + RESET);
     }
 
     // Delete product
     private static void deleteProduct() {
         System.out.print("Enter Product ID to delete: ");
         int id = getIntInput();
+
         if (inventory.remove(id) != null)
             System.out.println(GREEN + "✅ Product deleted!" + RESET);
         else
-            System.out.println(RED + "Product not found!" + RESET);
+            System.out.println(RED + "❌ Product not found!" + RESET);
     }
 
     // Increase stock
     private static void increaseStock() {
         System.out.print("Enter Product ID: ");
         int id = getIntInput();
+
         if (!inventory.containsKey(id)) {
-            System.out.println(RED + "Product not found!" + RESET);
+            System.out.println(RED + "❌ Product not found!" + RESET);
             return;
         }
 
         System.out.print("Enter quantity to add: ");
         int qty = getIntInput();
+
         if (qty <= 0) {
-            System.out.println(RED + "Quantity must be positive!" + RESET);
+            System.out.println(RED + "❌ Quantity must be positive!" + RESET);
             return;
         }
 
@@ -164,8 +167,9 @@ public class InventorySystem {
     private static void decreaseStock() {
         System.out.print("Enter Product ID: ");
         int id = getIntInput();
+
         if (!inventory.containsKey(id)) {
-            System.out.println(RED + "Product not found!" + RESET);
+            System.out.println(RED + "❌ Product not found!" + RESET);
             return;
         }
 
@@ -174,12 +178,12 @@ public class InventorySystem {
         Product p = inventory.get(id);
 
         if (qty <= 0) {
-            System.out.println(RED + "Quantity must be positive!" + RESET);
+            System.out.println(RED + "❌ Quantity must be positive!" + RESET);
             return;
         }
 
         if (p.quantity < qty) {
-            System.out.println(RED + "Not enough stock!" + RESET);
+            System.out.println(RED + "❌ Not enough stock!" + RESET);
             return;
         }
 
@@ -190,35 +194,35 @@ public class InventorySystem {
         System.out.println(GREEN + "✅ Stock decreased successfully!" + RESET);
     }
 
-    // Search by ID
-    private static void searchById() {
-        System.out.print("Enter Product ID: ");
-        int id = getIntInput();
-        if (inventory.containsKey(id))
-            System.out.println(inventory.get(id));
-        else
-            System.out.println(RED + "Product not found!" + RESET);
-    }
-
-    // Search by name
-    private static void searchByName() {
-        sc.nextLine();
-        System.out.print("Enter product name to search: ");
-        String search = sc.nextLine().toLowerCase();
+    // Combined Search (by ID or Name)
+    private static void searchProduct() {
+        sc.nextLine(); // clear buffer
+        System.out.print("Enter Product ID or Name: ");
+        String input = sc.nextLine().trim();
         boolean found = false;
 
-        for (Product p : inventory.values()) {
-            if (p.name.toLowerCase().contains(search)) {
-                System.out.println(p);
+        // If input is numeric, search by ID
+        if (input.matches("\\d+")) {
+            int id = Integer.parseInt(input);
+            if (inventory.containsKey(id)) {
+                System.out.println(inventory.get(id));
                 found = true;
+            }
+        } else {
+            // Otherwise, search by name (case-insensitive)
+            for (Product p : inventory.values()) {
+                if (p.name.toLowerCase().contains(input.toLowerCase())) {
+                    System.out.println(p);
+                    found = true;
+                }
             }
         }
 
         if (!found)
-            System.out.println(RED + "No matching products found!" + RESET);
+            System.out.println(RED + "❌ No matching product found!" + RESET);
     }
 
-    // View all products + Total Inventory Value
+    // View all products + total value
     private static void viewAllProducts() {
         if (inventory.isEmpty()) {
             System.out.println(RED + "No products in inventory." + RESET);
@@ -240,21 +244,23 @@ public class InventorySystem {
         System.out.printf(BLUE + "Total Inventory Value: ₹%.2f%n" + RESET, totalInventoryValue);
     }
 
-    // Low stock
+    // View low-stock products
     private static void lowStockReport() {
         System.out.println(YELLOW + "\n------ LOW STOCK PRODUCTS (Qty < 5) ------" + RESET);
         boolean found = false;
+
         for (Product p : inventory.values()) {
             if (p.quantity < 5) {
-                System.out.println(p);
+                System.out.println(RED + p + RESET);
                 found = true;
             }
         }
+
         if (!found)
-            System.out.println(GREEN + "All products have sufficient stock!" + RESET);
+            System.out.println(GREEN + "✅ All products have sufficient stock!" + RESET);
     }
 
-    // Load data
+    // Load inventory
     @SuppressWarnings("unchecked")
     private static void loadInventory() {
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(FILE_NAME))) {
@@ -265,7 +271,7 @@ public class InventorySystem {
         }
     }
 
-    // Save data
+    // Save inventory
     private static void saveInventory() {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(FILE_NAME))) {
             oos.writeObject(inventory);
@@ -274,7 +280,7 @@ public class InventorySystem {
         }
     }
 
-    // Input helpers
+    // Input validation helpers
     private static int getIntInput() {
         while (!sc.hasNextInt()) {
             System.out.print(RED + "Invalid input. Enter a valid number: " + RESET);
